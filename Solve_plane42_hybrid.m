@@ -10,15 +10,18 @@ clc
 
 %% Load Eig Solution
 
+load Data/eigSolution_a124b44c124fi100df1000ff100000
+% load Data/eigSolution_a52b20c52fi100df1000ff100000
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
-load Data/eigSolution_a16b8c16fi100df1000ff100000
+% load Data/eigSolution_a16b8c16fi100df1000ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff1000
 % load Data/eigSolution_a16b8c16fi100df1ff1000
 
 %% Geometric constants
 
-L = 0.1;         % Use NeleB to calculate a length of B
+L = b.l;
+% L = 0.1;         % Use NeleB to calculate a length of B
 NeleB = round(L/b.l);            % Number of elements in B
 
 nModes = 2;
@@ -169,6 +172,10 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 
 %% Save RT files
 
-filename = ['RTH_' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+fi = f(1);
+ff = f(end);
+df = mean(diff(f));
+
+filename = ['Data/RTH_' num2str(a.ndof) 'b' num2str(b.ndof) 'c' num2str(c.ndof) ...
     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
 save(filename, 'TRTH');

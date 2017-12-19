@@ -8,6 +8,16 @@ clear
 clc
 % close all
 
+%% Load Eig Solution
+
+load Data/eigSolution_a124b44c124fi100df1000ff100000
+% load Data/eigSolution_a52b20c52fi100df1000ff100000
+% load Data/eigSolution_a124b44c124fi100df1000ff250000
+% load Data/eigSolution_a16b8c16fi100df1000ff100000
+% load Data/eigSolution_a16b8c16fi100df100ff100000
+% load Data/eigSolution_a16b8c16fi100df100ff1000
+% load Data/eigSolution_a16b8c16fi100df1ff1000
+
 %% Material's Constants
 % Material: Steel
 
@@ -16,17 +26,18 @@ E=2.06e11;  %Young's modulus
 
 %% Geometric constants
 
-tb = 5e-3;              % base of the cross-section (tickness) (m)
-ha = 7.5e-3;              % height of the cross-section (width) (m)
-hb = 2.56e-3;
-% hb = 18e-3;
-% hb = 36e-3;
-hc = 7.5e-3;
+tb = a.l;              % base of the cross-section (tickness) (m)
+% ha = 7.5e-3;              % height of the cross-section (width) (m)
+% hb = 2.56e-3;
+ha = 18e-3;
+hb = 6e-3;
+hc = ha;
 
 La = a.l;
 Lb = b.l;               % length of the element (x direction) (m) (3 elem)
 Lc = c.l;
-L = 0.1;         % Use NeleB to calculate a length of B
+L = Lb;
+% L = 0.1;         % Use NeleB to calculate a length of B
 NeleB = round(L/b.l);            % Number of elements in B
 Sa = tb*(ha);
 Sb = tb*hb;
@@ -100,6 +111,10 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 
 %% Save RT files
 
-filename = ['RTA_' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+fi = f(1);
+ff = f(end);
+df = mean(diff(f));
+
+filename = ['Data/RTA_' num2str(a.ndof) 'b' num2str(b.ndof) 'c' num2str(c.ndof) ...
     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
 save(filename, 'TRTA');
