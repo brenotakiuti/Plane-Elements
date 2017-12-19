@@ -1,5 +1,5 @@
 % Modular Coding:
-% Plane element , solve eig and save into Data folder
+% Plane element , solve eig and save
 % Breno Ebinuma Takiuti
 % 14/12/2017
 
@@ -12,16 +12,13 @@ clc
 % La = 6e-4;
 % Lb = 6e-4;               % length of the element (x direction) (m) (3 elem)
 % Lc = La;
-% La = 5e-3;
-% Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
-% Lc = La;
-La = 1e-3;
-Lb = 1e-3;               % length of the element (x direction) (m) (3 elem)
+La = 5e-3;
+Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
 Lc = La;
 
 %% mass and stiffness from Ansys - plane
 % K and M for the first section
-% load KM_plane42_Lx005Ly0075_3el.mat
+load KM_plane42_Lx005Ly0075_3el.mat
 % load KM_plane42_Lx001Ly0075_12el.mat  %12 Plane elements with Lx = 0.001 Ly=0.0075
 % load KM_plane43_Lx0006Ly009_15el.mat
 % load KM_plane43_Lx0006Ly006_10el.mat
@@ -34,9 +31,8 @@ Kc=Ka;
 Mc=Ma;
 
 % K and M for the second section
-% load KM_plane42_Lx001Ly0025_4el
-% load KM_plane42_Lx005Ly0025_1el.mat
-load KM_plane43_Lx0006Ly006_10el.mat            % Cutoff 266kHz
+load KM_plane42_Lx005Ly0025_1el.mat
+% load KM_plane43_Lx0006Ly006_10el.mat            % Cutoff 266kHz
 % load KM_plane43_Lx0006Ly0072_12el.mat         % Cutoff 222kHz
 % load KM_plane43_Lx0006Ly009_15el.mat          % Cutoff 170kHz
 % load KM_plane43_Lx0006Ly012_20el.mat
@@ -50,7 +46,7 @@ Mb=full(M);
 
 %% Frequencies
 fi = 100;
-ff = 100000;
+ff = 250000;
 df = 1e3;
 f = fi:df:ff;
 w = 2*pi*f;
@@ -134,6 +130,6 @@ clear PhiQp PhiQn PhiFp PhiFn PsiQp PsiFp PsiQn PsiFn lp ln s kp kn PureN
 % [c] = sortDiff(ci,f);    
 c = ci;
 
-filename = ['Data/eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+filename = ['eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
 save(filename,'a', 'b', 'c','Ka','Kb','Kc','Ma','Mb','Mc','f');
