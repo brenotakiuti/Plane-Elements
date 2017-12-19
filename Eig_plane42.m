@@ -130,6 +130,6 @@ clear PhiQp PhiQn PhiFp PhiFn PsiQp PsiFp PsiQn PsiFn lp ln s kp kn PureN
 % [c] = sortDiff(ci,f);    
 c = ci;
 
-filename = ['eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+filename = ['Data/eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
 save(filename,'a', 'b', 'c','Ka','Kb','Kc','Ma','Mb','Mc','f');
