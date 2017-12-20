@@ -46,8 +46,8 @@ Mb=full(M);
 
 %% Frequencies
 fi = 100;
-ff = 100000;
-df = 1e3;
+ff = 130000;
+df = 1e2;
 f = fi:df:ff;
 w = 2*pi*f;
 

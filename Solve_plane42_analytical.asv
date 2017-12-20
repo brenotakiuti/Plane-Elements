@@ -39,49 +39,6 @@ beta_bc = Sc/Sb;
 
 nModes = 2;
 
-%% Joint FE model
-
-Kabc = zeros(a.ndof+(a.ndof/2*(NeleB+1)));
-Mabc = Kabc;
-
-Kabc(1:a.ndof,1:a.ndof) = Ka;
-Mabc(1:a.ndof,1:a.ndof) = Ma;
-
-%% Boundary conditions when using the left eigenvectors
-
-Eb = zeros(a.ndof/2,b.ndof/2);
-Ca = zeros(a.ndof/2);
-
-% Describe the boundary (connection a-b)
-I = eye(b.ndof/2);
-Inoda = (a.ndof/2-b.ndof/2)/2+1:(a.ndof/2-b.ndof/2)/2+b.ndof/2; %SM
-%     Inoda = (ar/2-44/2)/2+1:(ar/2-44/2)/2+br/2; %Quasi SM
-%     Inoda = 1:br/2;                     %NS
-%     Inoda = (ar/2-br/2)+1:ar/2;
-% Inoda = (ar-(ra/2)-br/2)/2+1:(ar-(ra/2)-br/2)/2+br/2; %SM2
-Inodb = 1:b.ndof/2;
-
-for ii=1:NeleB
-    Inodab(:,:,ii) = [round(a.ndof/2*ii)+Inoda, a.ndof+(a.ndof/2*(ii-1))+Inoda];
-end
-Inodbc = [a.ndof+1+(a.ndof/2*(NeleB-1)):a.ndof+(a.ndof/2*(NeleB+1))];
-
-Ea = eye(a.ndof/2);
-Eb(Inoda,Inodb) = I;
-Ec = Ea;
-Ca(Inoda,Inoda) = I;
-Cb = Eb;
-Cc = Ca;
-
-md = 1;
-
-for ii=1:NeleB
-    Kabc( Inodab(:,:,ii), Inodab(:,:,ii)) = Kabc( Inodab(:,:,ii), Inodab(:,:,ii))+Kb;
-    Mabc( Inodab(:,:,ii), Inodab(:,:,ii)) = Mabc( Inodab(:,:,ii), Inodab(:,:,ii))+Mb;
-end
-Kabc(Inodbc,Inodbc) = Kabc(Inodbc,Inodbc)+Kc;
-Mabc(Inodbc,Inodbc) = Mabc(Inodbc,Inodbc)+Mc;
-
 w = 2*pi*f;
 
 for q=1:length(f)
@@ -114,255 +71,35 @@ for q=1:length(f)
     
     % Bending scattering from 1 to 2
     [RBTAA(:,:,q),TBTCA(:,:,q)] = ThreeSectionRT(RBTaa1(:,:,q),RBTbb2(:,:,q),RBTbb1(:,:,q),TBTba1(:,:,q),TBTcb2(:,:,q),TBTab1(:,:,q),TBTb);
-    
-   
-    %% Hybrid method by Renno
-    
-    Z1 = zeros(size(a.PhiQp(:,:,q)));
-    Z2 = Z1';
-    I = eye(size(a.PhiQp(:,:,q)));
-    [rp,cp,~] = size(a.PhiQp);
-    [rb,cb,~] = size(Kb);
-
-    PhiQ_p = [a.PhiQp(:,:,q) Z1; Z1 c.PhiQp(:,:,q)];
-    PhiQ_n = [a.PhiQn(:,:,q) Z1; Z1 c.PhiQn(:,:,q)];
-    PhiF_p = [a.PhiFp(:,:,q) Z1; Z1 c.PhiFp(:,:,q)];
-    PhiF_n = [a.PhiFn(:,:,q) Z1; Z1 c.PhiFn(:,:,q)];
-    
-
-    PsiQ_n = [a.PsiQn(:,:,q) Z2; Z2 c.PsiQn(:,:,q)];
-%     PsiQ_n = [I Z2; Z2 I];
-
-    RA = eye(rp); RB = eye(rp);
-    Z3 = zeros(rp);
-    
-    R = [RA Z3; Z3 RB];
-    
-%     Nind = [9,11,13,15];
-    Nind = rp+1:2:rp*2;
-
-    R(Nind,Nind) = -eye(length(Nind));
-
-
-    D1 = (Kabc-w(q)^2*Mabc)*1;
-    
-   [rabc, cabc] = size(Kabc);
-    
-    InodE = [1:a.ndof/2,rabc-a.ndof/2+1:rabc];
-    InodI = a.ndof/2+1:rabc-a.ndof/2;
-
-%     %Method 1
-    DEE = D1(InodE,InodE);
-    DEI = D1(InodE,InodI);
-    DIE = D1(InodI,InodE);
-    DII = D1(InodI,InodI);
-    
-    Dj = (DEE-DEI*pinv(DII)*DIE);    %Method 1
-
-    %Method 2
-%     ni = length(InodE);
-%     DTLL = D1(InodE(1:ni/2),InodE(1:ni/2));
-%     DTLR = D1(InodE(1:ni/2),InodE(ni/2+1:ni));
-%     DTRL = D1(InodE(ni/2+1:ni),InodE(1:ni/2));
-%     DTRR = D1(InodE(ni/2+1:ni),InodE(ni/2+1:ni));
-%     DTLO = D1(InodE(1:ni/2),InodI);
-%     DTRO = D1(InodE(ni/2+1:ni),InodI);
-%     DTOL = D1(InodI,InodE(1:ni/2));
-%     DTOR = D1(InodI,InodE(ni/2+1:ni));
-%     DTOO = D1(InodI,InodI);
-%     
-%     DLL = DTLL - DTLO*pinv(DTOO)*DTOL;
-%     DLR = DTLR - DTLO*pinv(DTOO)*DTOR;
-%     DRL = DTRL - DTRO*pinv(DTOO)*DTOL;
-%     DRR = DTRR - DTRO*pinv(DTOO)*DTOR;
-% %     
-%     Dj = [DLL DLR; DRL DRR];    %Method 2
-
-    %Method 3
-%     Dj = D0;
+     
         
-    Srt(:,:,q) = pinv(PsiQ_n*(-Dj*R*PhiQ_n+R*PhiF_n))*PsiQ_n*(Dj*R*PhiQ_p-R*PhiF_p);
-%     Srt(:,:,q) = -pinv(Dj*R*PhiQ_n-R*PhiF_n)*(Dj*R*PhiQ_p-R*PhiF_p);
-
-    RHAA(:,:,q) = Srt(1:cp,1:cp,q);
-    THCA(:,:,q) = Srt(cp+1:cp+nModes,1:cp,q);
-    
 end
 
-% TRTP = [RPAA; TPCA];
-TRTH = [RHAA; THCA];
 % TRTA = [RBTAA; TBTCA];
-% Cutoff frequencies
-Cutoff_ai = [88e3 154e3 166e3 177e3 266e3]; 
-Cutoff_bi = [132e3 231e3 249e3 268e3];                           % b12
-% Cutoff_bi = 266e3;
-
-% Cutoff_a = round(Cutoff_ai/df+1); 
-% Cutoff_b = round(Cutoff_bi/df);
-% Cutoff_a = round(([156e3 166e3 ]-fi)/df); 
-% Cutoff_b = round((266e3-fi)/df);
-
-
- %% Cutoff plots
-% Use the plotCutOffs only for the non zero coefficients, the others plot
-% them normally
 % 
-figure()
-% plot(f,abs(reshape(RPAA(1,1,:),[1 length(f)])),'b','LineWidth',2);
-hold on
-% plot(f,abs(reshape(RPAA(2,1,:),[1 length(f)])),'b','LineWidth',2);
-% plotCutOffs(f,abs(reshape(RPAA(3,1,:),[1 length(f)])),88, {'r-.','b'},[2,2]);
-% plotCutOffs(f,abs(reshape(RPAA(4,1,:),[1 length(f)])),Cutoff_a(2), {'g','b'},[1,2]);
-% plotCutOffs(f,abs(reshape(RPAA(5,1,:),[1 length(f)])),Cutoff_a(2:4), {'g','b','r-.','b'},[1,2,2,2]);
-
+%  %% Plots
+% 
+% figure()
 % plot(f,abs(reshape(RBTAA(1,1,:),[1 length(f)])),'b:')
-% plot(f,abs(reshape(RBTAA(2,1,:),[1 length(f)])),'b:')
-
-plot(f,abs(reshape(RHAA(1,1,:),[1 length(f)])),'r--')
-% plot(f,abs(reshape(RHAA(1,2,:),[1 length(f)])),'r--')
-% plot(f,abs(reshape(RHAA(2,1,:),[1 length(f)])),'r--')
-
-% for ii = 1:length(Cutoff_a)
-%     plot([Cutoff_ai(ii) Cutoff_ai(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% for ii = 1:length(Cutoff_b)
-%     plot([Cutoff_bi(ii) Cutoff_bi(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% plot([156e3 156e3],[-800 800],'k:','LineWidth',0.5)
-% plot([166e3 166e3],[-800 800],'k:','LineWidth',0.5)
-% plot([178e3 178e3],[-800 800],'k:','LineWidth',0.5)
-% plot([266e3 266e3],[-800 800],'k:','LineWidth',0.5)
-
-%  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
- set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
-
-figure()
-% plot(f,abs(reshape(TPCA(1,1,:),[1 length(f)])),'b','LineWidth',2);
-hold on
-% plot(f,abs(reshape(TPCA(2,1,:),[1 length(f)])),'b','LineWidth',2);
-% plotCutOffs(f,abs(reshape(TPCA(3,1,:),[1 length(f)])),88, {'r-.','b'},[2,2]);
-% plotCutOffs(f,abs(reshape(TPCA(4,1,:),[1 length(f)])),Cutoff_a(2), {'g','b'},[1,2]);
-% plotCutOffs(f,abs(reshape(TPCA(5,1,:),[1 length(f)])),Cutoff_a(2:4), {'g','b','r-.','b'},[1,2,2,2]);
-
-% plot(f,abs(reshape(TBTCA(1,1,:),[1 length(f)])),'b:')
-% plot(f,abs(reshape(TBTCA(2,1,:),[1 length(f)])),'b:')
-
-plot(f,abs(reshape(THCA(1,1,:),[1 length(f)])),'r--')
-% plot(f,abs(reshape(THCA(1,2,:),[1 length(f)])),'r--')
-% plot(f,abs(reshape(THCA(2,1,:),[1 length(f)])),'r--')
-
-% plot([88e3 88e3],[-800 800],'k:','LineWidth',0.5)
-% plot([156e3 156e3],[-800 800],'k:','LineWidth',0.5)
-% plot([166e3 166e3],[-800 800],'k:','LineWidth',0.5)
-% plot([178e3 178e3],[-800 800],'k:','LineWidth',0.5)
-% plot([266e3 266e3],[-800 800],'k:','LineWidth',0.5)
-
-%  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
- set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
- 
-%  figure()
-% plot(f,abs(reshape(RPAA(1,2,:),[1 length(f)])),'b','LineWidth',2);
-% hold on
-% plot(f,abs(reshape(RPAA(2,2,:),[1 length(f)])),'b','LineWidth',2);
-% % plotCutOffs(f,abs(reshape(RPAA(3,2,:),[1 length(f)])),88, {'r-.','b'},[2,2]);
-% % plotCutOffs(f,abs(reshape(RPAA(4,2,:),[1 length(f)])),Cutoff_a(2), {'g','b'},[1,2]);
-% % plotCutOffs(f,abs(reshape(RPAA(5,2,:),[1 length(f)])),Cutoff_a(2:4), {'g','b','r-.','b'},[1,2,2,2]);
 % 
-% plot(f,abs(R_WM(2,:,:)),'b:')
-% 
-% plot([88e3 88e3],[-800 800],'k:','LineWidth',0.5)
-% plot([156e3 156e3],[-800 800],'k:','LineWidth',0.5)
-% plot([166e3 166e3],[-800 800],'k:','LineWidth',0.5)
-% plot([178e3 178e3],[-800 800],'k:','LineWidth',0.5)
-% plot([266e3 266e3],[-800 800],'k:','LineWidth',0.5)
-% 
-% %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
 % %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
 %  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
 %  set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
 % set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
+% %  axis([fi ff 0 2])
 % 
 % figure()
-% plot(f,abs(reshape(TPCA(1,2,:),[1 length(f)])),'b','LineWidth',2);
-% hold on
-% plot(f,abs(reshape(TPCA(2,2,:),[1 length(f)])),'b','LineWidth',2);
-% plotCutOffs(f,abs(reshape(TPCA(3,2,:),[1 length(f)])),88, {'r-.','b'},[2,2]);
-% plotCutOffs(f,abs(reshape(TPCA(4,2,:),[1 length(f)])),Cutoff_a(2), {'g','b'},[1,2]);
-% plotCutOffs(f,abs(reshape(TPCA(5,2,:),[1 length(f)])),Cutoff_a(2:4), {'g','b','r-.','b'},[1,2,2,2]);
-% 
-% plot(f,abs(T_WM(2,:)),'b:')
-% 
-% plot([88e3 88e3],[-800 800],'k:','LineWidth',0.5)
-% plot([156e3 156e3],[-800 800],'k:','LineWidth',0.5)
-% plot([166e3 166e3],[-800 800],'k:','LineWidth',0.5)
-% plot([178e3 178e3],[-800 800],'k:','LineWidth',0.5)
-% plot([266e3 266e3],[-800 800],'k:','LineWidth',0.5)
+% plot(f,abs(reshape(TBTCA(1,1,:),[1 length(f)])),'b:')
 % 
 % %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
 % %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
 %  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
 %  set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
 % set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
-%  
- 
-%% Energy plots
+% %  axis([fi ff 0 2])
 % 
-%  % Bending Incident TA Kinetic Energy
-%  figure()
-%  plot(f,abs(EIbbkin_avLy./EIbbkin_avL)*100,'b*','LineWidth',1)
-%  hold on
-%  plot(f,abs(EIbbkin_avLx./EIbbkin_avL)*100,'rp','LineWidth',1)
-%  plot(f,abs(EIbbkin_avLya./EIbbkin_avLa)*100,'k*','LineWidth',1)
-%  plot(f,abs(EIbbkin_avLxa./EIbbkin_avLa)*100,'kp','LineWidth',1)
+% %% Save RT files
 % 
-%  legend('kEy_{inc}/kE_{inc}','kEx_{inc}/kE_{inc}')
-% % %  title('Symmetric discontinuity')
-%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
-%  set(get(gca,'YLabel'),'String','Time-averaged kinetic energy [%]','FontName','Times New Roman','FontSize',12)
-%  set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi f(q) -1 101])
-% 
-% 
-% for ii = 1:length(Cutoff_a)
-%     plot([Cutoff_ai(ii) Cutoff_ai(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% for ii = 1:length(Cutoff_b)
-%     plot([Cutoff_bi(ii) Cutoff_bi(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% 
-%  figure()
-%  plot(f,(ERbbkin_avLy./ERbbkin_avL)*100,'b*','LineWidth',1)
-%  hold on
-%  plot(f,(ERbbkin_avLx./ERbbkin_avL)*100,'rp','LineWidth',1)
-%  plot(f,(ETbbkin_avLy./ETbbkin_avL)*100,'go','LineWidth',1)
-%  plot(f,(ETbbkin_avLx./ETbbkin_avL)*100,'ms','LineWidth',1)
-% 
-%  legend('kEy_{refl}/kE_{refl}','kEx_{refl}/kE_{refl}','kEy_{trans}/kE_{trans}','kEx_{trans}/kE_{trans}')
-% % %  title('Symmetric discontinuity')
-%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
-%  set(get(gca,'YLabel'),'String','Time-averaged kinetic energy [%]','FontName','Times New Roman','FontSize',12)
-%  set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi f(q) -1 101])
-% for ii = 1:length(Cutoff_a)
-%     plot([Cutoff_ai(ii) Cutoff_ai(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% for ii = 1:length(Cutoff_b)
-%     plot([Cutoff_bi(ii) Cutoff_bi(ii)],[-800 800],'k:','LineWidth',0.5)
-% end
-% 
-
-%% Save RT files
-% 
-% filename = ['RT_' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+% filename = ['RTA_' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
 %     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
-% save(filename, 'TRTP', 'TRTH','TRTA');
+% save(filename, 'TRTA');

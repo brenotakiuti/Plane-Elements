@@ -3,6 +3,7 @@
 % First create a eigsolution file!
 % Breno Ebinuma Takiuti
 % 12/14/2017
+tic
 
 clear 
 clc
@@ -11,14 +12,18 @@ clc
 %% Load Eig Solution
 
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
-load Data/eigSolution_a16b8c16fi100df1000ff100000
+load Data/eigSolution_a16b8c16fi100df100ff130000
+% load Data/eigSolution_a16b8c16fi100df1000ff135000
+% load Data/eigSolution_a16b8c16fi100df1000ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff1000
 % load Data/eigSolution_a16b8c16fi100df1ff1000
 
 %% Geometric constants
 
-L = 0.1;         % Use NeleB to calculate a length of B
+n = 250;
+% L = 0.1;         % Use NeleB to calculate a length of B
+L = n*b.l;
 NeleB = round(L/b.l);            % Number of elements in B
 
 nModes = 2;
@@ -166,9 +171,13 @@ plot(f,abs(reshape(THCA(1,1,:),[1 length(f)])),'r--')
 set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
 
-
+toc
 %% Save RT files
-
-filename = ['RTH_' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
-    'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
-save(filename, 'TRTH');
+% 
+% fi = f(1);
+% ff = f(end);
+% df = mean(diff(f));
+% 
+% filename = ['RTH_' num2str(a.ndof) 'b' num2str(b.ndof) 'c' num2str(c.ndof) ...
+%     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
+% save(filename, 'TRTH');
