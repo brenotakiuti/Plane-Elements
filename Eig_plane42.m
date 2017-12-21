@@ -12,14 +12,17 @@ clc
 % La = 6e-4;
 % Lb = 6e-4;               % length of the element (x direction) (m) (3 elem)
 % Lc = La;
-La = 5e-3;
-Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
+% La = 5e-3;
+% Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
+% Lc = La;
+La = 1e-3;
+Lb = 1e-3;               % length of the element (x direction) (m) (3 elem)
 Lc = La;
 
 %% mass and stiffness from Ansys - plane
 % K and M for the first section
-load KM_plane42_Lx005Ly0075_3el.mat
-% load KM_plane42_Lx001Ly0075_12el.mat  %12 Plane elements with Lx = 0.001 Ly=0.0075
+% load KM_plane42_Lx005Ly0075_3el.mat
+load KM_plane42_Lx001Ly0075_12el.mat  %12 Plane elements with Lx = 0.001 Ly=0.0075
 % load KM_plane43_Lx0006Ly009_15el.mat
 % load KM_plane43_Lx0006Ly006_10el.mat
 % load KM_plane43_Lx0006Ly012_20el.mat
@@ -31,7 +34,8 @@ Kc=Ka;
 Mc=Ma;
 
 % K and M for the second section
-load KM_plane42_Lx005Ly0025_1el.mat
+load KM_plane42_Lx001Ly0025_4el.mat
+% load KM_plane42_Lx005Ly0025_1el.mat
 % load KM_plane43_Lx0006Ly006_10el.mat            % Cutoff 266kHz
 % load KM_plane43_Lx0006Ly0072_12el.mat         % Cutoff 222kHz
 % load KM_plane43_Lx0006Ly009_15el.mat          % Cutoff 170kHz

@@ -10,8 +10,9 @@ clc
 
 %% Load Eig Solution
 
+load Data/eigSolution_a52b20c52fi100df100ff130000
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
-load Data/eigSolution_a16b8c16fi100df100ff130000
+% load Data/eigSolution_a16b8c16fi100df100ff130000
 % load Data/eigSolution_a16b8c16fi100df1000ff135000
 % load Data/eigSolution_a16b8c16fi100df1000ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff100000
@@ -40,7 +41,7 @@ Lb = b.l;               % length of the element (x direction) (m) (3 elem)
 Lc = c.l;
 
 %% Discontinuity size
-n = 250;
+n = 100;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 

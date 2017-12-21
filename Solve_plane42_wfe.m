@@ -11,8 +11,9 @@ clc
 
 %% Load Eig Solution
 
+load Data/eigSolution_a52b20c52fi100df100ff130000
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
-load Data/eigSolution_a16b8c16fi100df100ff130000
+% load Data/eigSolution_a16b8c16fi100df100ff130000
 % load Data/eigSolution_a16b8c16fi100df1000ff135000
 % load Data/eigSolution_a16b8c16fi100df1000ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff100000
@@ -21,7 +22,7 @@ load Data/eigSolution_a16b8c16fi100df100ff130000
 
 %% Geometric constants
 
-n = 250;
+n = 100;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 NeleB = round(L/b.l);            % Number of elements in B
