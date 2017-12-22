@@ -43,10 +43,11 @@ Inoda = (a.ndof/2-b.ndof/2)/2+1:(a.ndof/2-b.ndof/2)/2+b.ndof/2; %SM
 % Inoda = (ar-(ra/2)-br/2)/2+1:(ar-(ra/2)-br/2)/2+br/2; %SM2
 Inodb = 1:b.ndof/2;
 
+Inodab = zeros(1,length(Inoda)*2,NeleB);
 for ii=1:NeleB
     Inodab(:,:,ii) = [round(a.ndof/2*ii)+Inoda, a.ndof+(a.ndof/2*(ii-1))+Inoda];
 end
-Inodbc = [a.ndof+1+(a.ndof/2*(NeleB-1)):a.ndof+(a.ndof/2*(NeleB+1))];
+Inodbc = a.ndof+1+(a.ndof/2*(NeleB-1)):a.ndof+(a.ndof/2*(NeleB+1));
 
 Ea = eye(a.ndof/2);
 Eb(Inoda,Inodb) = I;
@@ -57,12 +58,29 @@ Cc = Ca;
 
 w = 2*pi*f;
 
-for q=1:length(f)
-    
-    %% Numeric
+%% Pre-allocate matrices
+
+nmodes_a = length(a.kp(:,1));
+nmodes_b = length(b.kp(:,1));
+nmodes_c = length(c.kp(:,1));
+
+lenf = length(f);
+TRTr = zeros(1,lenf); TRTc = TRTr;
+
+RPaa1 = zeros(nmodes_a,nmodes_a,lenf); 
+TPba1 = zeros(nmodes_b,nmodes_a,lenf); 
+RPbb1 = zeros(nmodes_b,nmodes_b,lenf); 
+TPab1 = zeros(nmodes_a,nmodes_b,lenf); 
+
+RPbb2 = zeros(nmodes_b,nmodes_b,lenf); 
+TPcb2 = zeros(nmodes_c,nmodes_b,lenf); 
+RPcc2 = zeros(nmodes_c,nmodes_c,lenf);
+TPbc2 = zeros(nmodes_b,nmodes_c,lenf);
+
+RPAA = RPaa1; TPCA = RPaa1;
+
+for q=1:length(f) 
      
-    nmodes_b = length(b.kp(:,q));
-    nmodes_a = length(a.kp(:,q));
     kPb = b.kp (1:nmodes_b,q);
     
     PsiQa_p0 = a.PsiQp(:,:,1);

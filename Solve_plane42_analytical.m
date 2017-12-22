@@ -59,6 +59,18 @@ nModes = 2;
 
 w = 2*pi*f;
 
+%% Pre-allocate matrices
+lenf = length(f);
+kaa = zeros(1,lenf);
+kbb = kaa;
+kbc = kaa;
+
+RBTaa1 = zeros(nModes,nModes,lenf);
+TBTba1 = RBTaa1; RBTbb2 = RBTaa1; TBTcb2 = RBTaa1; RBTcc2 = RBTaa1;
+TBTbc2 = RBTaa1; RBTbb1 = RBTaa1; TBTab1 = RBTaa1;
+ 
+RBTAA = RBTaa1; TBTCA = RBTaa1;
+
 for q=1:length(f)
     %% Analytical Solution
     
@@ -119,21 +131,21 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 %% Phase Plots
 
 figure()
-plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)])),'b:')
+plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)]))*180/pi,'b:')
 
 %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','Phase(R) *Check nomenclature','FontName','Times New Roman','FontSize',12)
 set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
 
 figure()
-plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)])),'b:')
+plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)]))*180/pi,'b:')
 
 %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
 %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','Phase(T) *Check nomenclature','FontName','Times New Roman','FontSize',12)
 set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
 

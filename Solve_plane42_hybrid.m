@@ -22,7 +22,7 @@ load Data/eigSolution_a52b20c52fi100df100ff130000
 
 %% Geometric constants
 
-n = 100;
+n = 1;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 NeleB = round(L/b.l);            % Number of elements in B
@@ -51,10 +51,11 @@ Inoda = (a.ndof/2-b.ndof/2)/2+1:(a.ndof/2-b.ndof/2)/2+b.ndof/2; %SM
 % Inoda = (ar-(ra/2)-br/2)/2+1:(ar-(ra/2)-br/2)/2+br/2; %SM2
 Inodb = 1:b.ndof/2;
 
+Inodab = zeros(1,length(Inoda)*2,NeleB);
 for ii=1:NeleB
     Inodab(:,:,ii) = [round(a.ndof/2*ii)+Inoda, a.ndof+(a.ndof/2*(ii-1))+Inoda];
 end
-Inodbc = [a.ndof+1+(a.ndof/2*(NeleB-1)):a.ndof+(a.ndof/2*(NeleB+1))];
+Inodbc = a.ndof+1+(a.ndof/2*(NeleB-1)):a.ndof+(a.ndof/2*(NeleB+1));
 
 Ea = eye(a.ndof/2);
 Eb(Inoda,Inodb) = I;
@@ -62,8 +63,6 @@ Ec = Ea;
 Ca(Inoda,Inoda) = I;
 Cb = Eb;
 Cc = Ca;
-
-md = 1;
 
 for ii=1:NeleB
     Kabc( Inodab(:,:,ii), Inodab(:,:,ii)) = Kabc( Inodab(:,:,ii), Inodab(:,:,ii))+Kb;
@@ -74,15 +73,31 @@ Mabc(Inodbc,Inodbc) = Mabc(Inodbc,Inodbc)+Mc;
 
 w = 2*pi*f;
 
+%% Pre-allocate matrices
+
+[ndof_a,nmodes_a,~] = size(a.PhiQp);
+[ndof_b,nmodes_b,~] = size(b.PhiQp);
+Z1 = zeros(size(a.PhiQp(:,:,1)));
+Z2 = Z1';
+I = eye(size(a.PhiQp(:,:,1)));
+lenf = length(f);
+
+Srt = zeros(ndof_a,ndof_a,lenf);
+RHAA = zeros(nmodes_a,nmodes_a,lenf);
+THCA = RHAA;
+
+RA = eye(ndof_a); 
+RB = eye(ndof_a);
+Z3 = zeros(ndof_a);
+R = [RA Z3; Z3 RB];
+[rabc, cabc] = size(Kabc);
+    
+InodE = [1:a.ndof/2,rabc-a.ndof/2+1:rabc];  % External DOFs
+InodI = a.ndof/2+1:rabc-a.ndof/2;           % Internal DOFs
+
 for q=1:length(f)
  
     %% Hybrid method by Renno
-    
-    Z1 = zeros(size(a.PhiQp(:,:,q)));
-    Z2 = Z1';
-    I = eye(size(a.PhiQp(:,:,q)));
-    [rp,cp,~] = size(a.PhiQp);
-    [rb,cb,~] = size(Kb);
 
     PhiQ_p = [a.PhiQp(:,:,q) Z1; Z1 c.PhiQp(:,:,q)];
     PhiQ_n = [a.PhiQn(:,:,q) Z1; Z1 c.PhiQn(:,:,q)];
@@ -91,31 +106,19 @@ for q=1:length(f)
     
 
     PsiQ_n = [a.PsiQn(:,:,q) Z2; Z2 c.PsiQn(:,:,q)];
-%     PsiQ_n = [I Z2; Z2 I];
 
-    RA = eye(rp); RB = eye(rp);
-    Z3 = zeros(rp);
-    
-    R = [RA Z3; Z3 RB];
-    
-%     Nind = [9,11,13,15];
-    Nind = rp+1:2:rp*2;
+    Nind = ndof_a+1:2:ndof_a*2;
 
+    % Generate a rotation matrix
     R(Nind,Nind) = -eye(length(Nind));
 
-
-    D1 = (Kabc-w(q)^2*Mabc)*1;
-    
-   [rabc, cabc] = size(Kabc);
-    
-    InodE = [1:a.ndof/2,rabc-a.ndof/2+1:rabc];
-    InodI = a.ndof/2+1:rabc-a.ndof/2;
+    D0 = (Kabc-w(q)^2*Mabc);
 
 %     %Method 1
-    DEE = D1(InodE,InodE);
-    DEI = D1(InodE,InodI);
-    DIE = D1(InodI,InodE);
-    DII = D1(InodI,InodI);
+    DEE = D0(InodE,InodE);
+    DEI = D0(InodE,InodI);
+    DIE = D0(InodI,InodE);
+    DII = D0(InodI,InodI);
     
     Dj = (DEE-DEI*pinv(DII)*DIE);    %Method 1
 
@@ -144,8 +147,8 @@ for q=1:length(f)
     Srt(:,:,q) = pinv(PsiQ_n*(-Dj*R*PhiQ_n+R*PhiF_n))*PsiQ_n*(Dj*R*PhiQ_p-R*PhiF_p);
 %     Srt(:,:,q) = -pinv(Dj*R*PhiQ_n-R*PhiF_n)*(Dj*R*PhiQ_p-R*PhiF_p);
 
-    RHAA(:,:,q) = Srt(1:cp,1:cp,q);
-    THCA(:,:,q) = Srt(cp+1:cp+nModes,1:cp,q);
+    RHAA(:,:,q) = Srt(1:nmodes_a,1:nmodes_a,q);
+    THCA(:,:,q) = Srt(nmodes_a+1:end,1:nmodes_a,q);
     
 end
 
