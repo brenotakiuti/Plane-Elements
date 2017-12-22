@@ -95,7 +95,7 @@ end
 
 % TRTA = [RBTAA; TBTCA];
 
- %% Plots
+%% Coefficient Plots
 
 figure()
 plot(f,abs(reshape(RBTAA(1,1,:),[1 length(f)])),'b:')
@@ -108,6 +108,27 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 
 figure()
 plot(f,abs(reshape(TBTCA(1,1,:),[1 length(f)])),'b:')
+
+%  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
+%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+ set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
+set(gca,'fontsize',12,'FontName','Times New Roman');
+%  axis([fi ff 0 2])
+
+%% Phase Plots
+
+figure()
+plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)])),'b:')
+
+%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+ set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
+set(gca,'fontsize',12,'FontName','Times New Roman');
+%  axis([fi ff 0 2])
+
+figure()
+plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)])),'b:')
 
 %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
 %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
