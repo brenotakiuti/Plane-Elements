@@ -83,8 +83,8 @@ ai = v2struct (PhiQp,PhiQn,PhiFp,PhiFn,PsiQp,PsiFp,PsiQn,PsiFn,lp,ln,s,kp,kn,Pur
 clear PhiQp PhiQn PhiFp PhiFn PsiQp PsiFp PsiQn PsiFn lp ln s kp kn PureN
 
 tolS = 1e-1;
-% [a] = sortDiff(ai,f,tolS);
-a = ai;
+[a] = sortDiff(ai,f,tolS);
+% a = ai;
 %%
 for q=1:length(f)
     %% B
@@ -107,8 +107,8 @@ ndof = ndofb;
 l = Lb;
 bi = v2struct (PhiQp,PhiQn,PhiFp,PhiFn,PsiQp,PsiFp,PsiQn,PsiFn,lp,ln,s,kp,kn,PureN,ndof,l);
 clear PhiQp PhiQn PhiFp PhiFn PsiQp PsiFp PsiQn PsiFn lp ln s kp kn PureN
-% [b] = sortDiff(bi,f);
-b = bi;
+[b] = sortDiff(bi,f);
+% b = bi;
 
 for q=1:length(f)
     %% C
@@ -131,9 +131,45 @@ ndof = ndofc;
 l = Lc;
 ci = v2struct (PhiQp,PhiQn,PhiFp,PhiFn,PsiQp,PsiFp,PsiQn,PsiFn,lp,ln,s,kp,kn,PureN,ndof,l);
 clear PhiQp PhiQn PhiFp PhiFn PsiQp PsiFp PsiQn PsiFn lp ln s kp kn PureN
-% [c] = sortDiff(ci,f);    
-c = ci;
+[c] = sortDiff(ci,f);    
+% c = ci;
 
-filename = ['Data/eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+%% Should always use all propagating and nearfield waves, cant cut
+nmodes_a = length(a.kp(:,1));
+nmodes_b = length(b.kp(:,1));
+nmodes_c = length(c.kp(:,1));
+
+    mode_limita = 5;
+%     mode_limita = nmodes_a;
+    a.PhiQp = a.PhiQp(:,1:mode_limita,:);
+    a.PhiQn = a.PhiQn(:,1:mode_limita,:);
+    a.PsiQp = a.PsiQp(1:mode_limita,:,:);
+    a.PsiQn = a.PsiQn(1:mode_limita,:,:);
+    
+    a.PhiFp = a.PhiFp(:,1:mode_limita,:);
+    a.PhiFn = a.PhiFn(:,1:mode_limita,:);
+    a.PsiFp = a.PsiFp(1:mode_limita,:,:);
+    a.PsiFn = a.PsiFn(1:mode_limita,:,:);
+    
+    mode_limitb = 3;
+%     mode_limitb = length(knbi);
+%     mode_limitb = nmodes_b;
+    b.PhiQp = b.PhiQp(:,1:mode_limitb,:);
+    b.PhiQn = b.PhiQn(:,1:mode_limitb,:);
+    
+    b.PhiFp = b.PhiFp(:,1:mode_limitb,:);
+    b.PhiFn = b.PhiFn(:,1:mode_limitb,:);
+    
+    mode_limitc = 5;
+%      mode_limita = nmodes_a;
+    c.PhiQp = c.PhiQp(:,1:mode_limitc,:);
+    c.PhiQn = c.PhiQn(:,1:mode_limitc,:);
+    
+    c.PhiFp = c.PhiFp(:,1:mode_limitc,:);
+    c.PhiFn = c.PhiFn(:,1:mode_limitc,:);
+
+%%
+
+filename = ['Data/eigSolutionCUT_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)];
 save(filename,'a', 'b', 'c','Ka','Kb','Kc','Ma','Mb','Mc','f');

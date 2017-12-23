@@ -1,4 +1,5 @@
 % Find the reflection and transmission for three sections modeled in FE
+% WFE Method
 % Modular code:
 % First create a eigsolution file!
 % Breno Ebinuma Takiuti
@@ -22,7 +23,7 @@ load Data/eigSolution_a52b20c52fi100df100ff130000
 
 %% Geometric constants
 
-n = 100;
+n = 10;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 NeleB = round(L/b.l);            % Number of elements in B
@@ -79,7 +80,7 @@ TPbc2 = zeros(nmodes_b,nmodes_c,lenf);
 
 RPAA = RPaa1; TPCA = RPaa1;
 
-for q=1:length(f) 
+for q=1:lenf 
      
     kPb = b.kp (1:nmodes_b,q);
     
@@ -130,6 +131,50 @@ end
 
 TRTP = [RPAA; TPCA];
 
+toc
+
+%% Calculate Power coefficients
+
+PrPP2 = zeros(1,lenf);
+PrPL2 = PrPP2; PrPN2 = PrPP2; PtPP2 = PrPP2; PtPL2 = PrPP2; PtPN2 = PrPP2;
+PrLP2 = PrPP2; PrLL2 = PrPP2; PrLN2 = PrPP2; PtLP2 = PrPP2; PtLL2 = PrPP2; PtLN2 = PrPP2; 
+
+for q=1:lenf 
+    % Power Matrix
+    % MITROU (2015)
+    Pa2 = (1i*w(q)/2)*[a.PhiQp(:,:,q)'*a.PhiFp(:,:,q) a.PhiQp(:,:,q)'*a.PhiFn(:,:,q);
+        a.PhiQn(:,:,q)'*a.PhiFp(:,:,q) a.PhiQn(:,:,q)'*a.PhiFn(:,:,q)]-...
+        [a.PhiFp(:,:,q)'*a.PhiQp(:,:,q) a.PhiFp(:,:,q)'*a.PhiQn(:,:,q);
+        a.PhiFn(:,:,q)'*a.PhiQp(:,:,q) a.PhiFn(:,:,q)'*a.PhiQn(:,:,q)];
+    Pc2 = (1i*w(q)/2)*[c.PhiQp(:,:,q)'*c.PhiFp(:,:,q) c.PhiQp(:,:,q)'*c.PhiFn(:,:,q);
+        c.PhiQn(:,:,q)'*c.PhiFp(:,:,q) c.PhiQn(:,:,q)'*c.PhiFn(:,:,q)]-...
+        [c.PhiFp(:,:,q)'*c.PhiQp(:,:,q) c.PhiFp(:,:,q)'*c.PhiQn(:,:,q);
+        c.PhiFn(:,:,q)'*c.PhiQp(:,:,q) c.PhiFn(:,:,q)'*c.PhiQn(:,:,q)];
+    
+    % Power Coefficients
+    PrPP2(q) = abs(RPAA(1,1,q))^2*(Pa2(nmodes_a+1,nmodes_a+1)/Pa2(1,1));
+    PrPL2(q) = abs(RPAA(2,1,q))^2*(Pa2(nmodes_a+2,nmodes_a+2)/Pa2(1,1));
+    PrPN2(q) = abs(RPAA(3,1,q))^2*(Pa2(nmodes_a+3,nmodes_a+3)/Pa2(1,1));
+%     PrPC12(q) = abs(RPAA(4,1,q))^2*(Pa2(nmodes_a+4,nmodes_a+4)/Pa2(1,1));
+%     PrPC22(q) = abs(RPAA(5,1,q))^2*(Pa2(nmodes_a+5,nmodes_a+5)/Pa2(1,1));
+    PtPP2(q) = abs(TPCA(1,1,q))^2*(Pc2(1,1)/Pa2(1,1));
+    PtPL2(q) = abs(TPCA(2,1,q))^2*(Pc2(2,2)/Pa2(1,1));
+    PtPN2(q) = abs(TPCA(3,1,q))^2*(Pc2(3,3)/Pa2(1,1));
+%     PtPC12(q) = abs(TPCA(4,1,q))^2*(Pc2(4,4)/Pa2(1,1));
+%     PtPC22(q) = abs(TPCA(5,1,q))^2*(Pc2(5,5)/Pa2(1,1));
+   
+    PrLP2(q) = abs(RPAA(1,2,q))^2*(Pa2(nmodes_a+1,nmodes_a+1)/Pa2(2,2));
+    PrLL2(q) = abs(RPAA(2,2,q))^2*(Pa2(nmodes_a+2,nmodes_a+2)/Pa2(2,2));
+    PrLN2(q) = abs(RPAA(3,2,q))^2*(Pa2(nmodes_a+3,nmodes_a+3)/Pa2(2,2));
+%     PrLC12(q) = abs(RPAA(4,2,q))^2*(Pa2(nmodes_a+4,nmodes_a+4)/Pa2(2,2));
+%     PrLC22(q) = abs(RPAA(5,2,q))^2*(Pa2(nmodes_a+5,nmodes_a+5)/Pa2(2,2));
+    PtLP2(q) = abs(TPCA(1,2,q))^2*(Pc2(1,1)/Pa2(2,2));
+    PtLL2(q) = abs(TPCA(2,2,q))^2*(Pc2(2,2)/Pa2(2,2));
+    PtLN2(q) = abs(TPCA(3,2,q))^2*(Pc2(3,3)/Pa2(2,2));
+%     PtLC12(q) = abs(TPCA(4,2,q))^2*(Pc2(4,4)/Pa2(2,2));
+%     PtLC22(q) = abs(TPCA(5,2,q))^2*(Pc2(5,5)/Pa2(2,2));
+end
+
  %% Coefficient Plots
 
 figure()
@@ -151,26 +196,43 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
   
 %% Phase Plots
-
-figure()
-plot(f,phase(reshape(RPAA(1,1,:),[1 length(f)])),'b','LineWidth',2);
-
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
- set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
-
-figure()
-plot(f,phase(reshape(TPCA(1,1,:),[1 length(f)])),'b','LineWidth',2);
-
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
- set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
+% 
+% figure()
+% plot(f,phase(reshape(RPAA(1,1,:),[1 length(f)])),'b','LineWidth',2);
+% 
+% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+%  set(get(gca,'YLabel'),'String','|R|','FontName','Times New Roman','FontSize',12)
+% set(gca,'fontsize',12,'FontName','Times New Roman');
+% %  axis([fi ff 0 2])
+% 
+% figure()
+% plot(f,phase(reshape(TPCA(1,1,:),[1 length(f)])),'b','LineWidth',2);
+% 
+% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+%  set(get(gca,'YLabel'),'String','|T|','FontName','Times New Roman','FontSize',12)
+% set(gca,'fontsize',12,'FontName','Times New Roman');
+% %  axis([fi ff 0 2])
  
-toc
+%% Power Plots
+ figure()
+ plot(f,abs(PrPP2),'b','LineWidth',1)
+ hold on
+%  plot(f,abs(PrPL2),'r','LineWidth',1)
+ plot(f,abs(PrPN2),'g','LineWidth',1)
+%  plot(f,abs(PrPC12),'m','LineWidth',1)
+%  plot(f,abs(PrPC22),'c','LineWidth',1)
+ plot(f,abs(PtPP2),'b--','LineWidth',1)
+%  plot(f,abs(PtPL2),'r*','LineWidth',1)
+ plot(f,abs(PtPN2),'g--','LineWidth',1)
+%  plot(f,abs(PtPC12),'m*','LineWidth',1)
+%  plot(f,abs(PtPC22),'c*','LineWidth',1)
+
+ set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','Power coefficients','FontName','Times New Roman','FontSize',12)
+ set(gca,'fontsize',12,'FontName','Times New Roman');
+ 
 %% Save RT files
 
 % fi = f(1);

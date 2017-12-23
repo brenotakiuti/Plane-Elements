@@ -1,4 +1,5 @@
 % Find the reflection and transmission for three sections modeled in FE
+% Analytical Method
 % Modular code:
 % First create a eigsolution file!
 % Breno Ebinuma Takiuti
@@ -41,7 +42,7 @@ Lb = b.l;               % length of the element (x direction) (m) (3 elem)
 Lc = c.l;
 
 %% Discontinuity size
-n = 100;
+n = 10;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 
@@ -106,6 +107,35 @@ for q=1:length(f)
 end
 
 % TRTA = [RBTAA; TBTCA];
+ 
+%% Calculate Power coefficients
+[~,nmodes_a,~] = size(a.PhiQp);
+[~,nmodes_b,~] = size(b.PhiQp);
+[~,nmodes_c,~] = size(c.PhiQp);
+
+PrPP2 = zeros(1,lenf);
+PrPL2 = PrPP2; PrPN2 = PrPP2; PtPP2 = PrPP2; PtPL2 = PrPP2; PtPN2 = PrPP2;
+PrLP2 = PrPP2; PrLL2 = PrPP2; PrLN2 = PrPP2; PtLP2 = PrPP2; PtLL2 = PrPP2; PtLN2 = PrPP2; 
+
+for q=1:lenf 
+    % Power Matrix
+    % MITROU (2015)
+    Pa2 = (1i*w(q)/2)*[a.PhiQp(:,:,q)'*a.PhiFp(:,:,q) a.PhiQp(:,:,q)'*a.PhiFn(:,:,q);
+        a.PhiQn(:,:,q)'*a.PhiFp(:,:,q) a.PhiQn(:,:,q)'*a.PhiFn(:,:,q)]-...
+        [a.PhiFp(:,:,q)'*a.PhiQp(:,:,q) a.PhiFp(:,:,q)'*a.PhiQn(:,:,q);
+        a.PhiFn(:,:,q)'*a.PhiQp(:,:,q) a.PhiFn(:,:,q)'*a.PhiQn(:,:,q)];
+    Pc2 = (1i*w(q)/2)*[c.PhiQp(:,:,q)'*c.PhiFp(:,:,q) c.PhiQp(:,:,q)'*c.PhiFn(:,:,q);
+        c.PhiQn(:,:,q)'*c.PhiFp(:,:,q) c.PhiQn(:,:,q)'*c.PhiFn(:,:,q)]-...
+        [c.PhiFp(:,:,q)'*c.PhiQp(:,:,q) c.PhiFp(:,:,q)'*c.PhiQn(:,:,q);
+        c.PhiFn(:,:,q)'*c.PhiQp(:,:,q) c.PhiFn(:,:,q)'*c.PhiQn(:,:,q)];
+    
+    % Power Coefficients
+    PrPP2(q) = abs(RBTAA(1,1,q))^2*(Pa2(nmodes_a+1,nmodes_a+1)/Pa2(1,1));
+    PrPN2(q) = abs(RBTAA(2,1,q))^2*(Pa2(nmodes_a+3,nmodes_a+3)/Pa2(1,1));
+    PtPP2(q) = abs(TBTCA(1,1,q))^2*(Pc2(1,1)/Pa2(1,1));
+    PtPN2(q) = abs(TBTCA(2,1,q))^2*(Pc2(3,3)/Pa2(1,1));
+end
+
 
 %% Coefficient Plots
 
@@ -129,25 +159,38 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
 
 %% Phase Plots
+% 
+% figure()
+% plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)]))*180/pi,'b:')
+% 
+% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+%  set(get(gca,'YLabel'),'String','Phase(R) *Check nomenclature','FontName','Times New Roman','FontSize',12)
+% set(gca,'fontsize',12,'FontName','Times New Roman');
+% %  axis([fi ff 0 2])
+% 
+% figure()
+% plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)]))*180/pi,'b:')
+% 
+% %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
+% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+%  set(get(gca,'YLabel'),'String','Phase(T) *Check nomenclature','FontName','Times New Roman','FontSize',12)
+% set(gca,'fontsize',12,'FontName','Times New Roman');
+% %  axis([fi ff 0 2])
 
-figure()
-plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)]))*180/pi,'b:')
+%% Power Plots
+ figure()
+ plot(f,abs(PrPP2),'b','LineWidth',1)
+ hold on
+ plot(f,abs(PrPN2),'g','LineWidth',1)
+ plot(f,abs(PtPP2),'b--','LineWidth',1)
+ plot(f,abs(PtPN2),'g--','LineWidth',1)
 
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','Phase(R) *Check nomenclature','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
-
-figure()
-plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)]))*180/pi,'b:')
-
-%  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
-%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
- set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
- set(get(gca,'YLabel'),'String','Phase(T) *Check nomenclature','FontName','Times New Roman','FontSize',12)
-set(gca,'fontsize',12,'FontName','Times New Roman');
-%  axis([fi ff 0 2])
+ set(get(gca,'YLabel'),'String','Power coefficients','FontName','Times New Roman','FontSize',12)
+ set(gca,'fontsize',12,'FontName','Times New Roman');
+%  axis([fi f(q) -0.01 2])
 
 %% Save RT files
 
