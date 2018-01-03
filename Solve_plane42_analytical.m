@@ -11,7 +11,7 @@ clc
 
 %% Load Eig Solution
 
-load Data/eigSolution_a52b20c52fi100df100ff130000
+% load Data/eigSolution_a52b20c52fi100df100ff130000
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
 % load Data/eigSolution_a16b8c16fi100df100ff130000
 % load Data/eigSolution_a16b8c16fi100df1000ff135000
@@ -42,7 +42,7 @@ Lb = b.l;               % length of the element (x direction) (m) (3 elem)
 Lc = c.l;
 
 %% Discontinuity size
-n = 10;
+n = 1;
 % L = 0.1;         % Use NeleB to calculate a length of B
 L = n*b.l;
 
@@ -159,25 +159,25 @@ set(gca,'fontsize',12,'FontName','Times New Roman');
 %  axis([fi ff 0 2])
 
 %% Phase Plots
-% 
-% figure()
-% plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)]))*180/pi,'b:')
-% 
-% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
-%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
-%  set(get(gca,'YLabel'),'String','Phase(R) *Check nomenclature','FontName','Times New Roman','FontSize',12)
-% set(gca,'fontsize',12,'FontName','Times New Roman');
-% %  axis([fi ff 0 2])
-% 
-% figure()
-% plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)]))*180/pi,'b:')
-% 
-% %  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
-% %  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
-%  set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
-%  set(get(gca,'YLabel'),'String','Phase(T) *Check nomenclature','FontName','Times New Roman','FontSize',12)
-% set(gca,'fontsize',12,'FontName','Times New Roman');
-% %  axis([fi ff 0 2])
+
+figure()
+plot(f,phase(reshape(RBTAA(1,1,:),[1 length(f)]))*180/pi,'b:')
+
+%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+ set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','\Phi_R','FontName','Times New Roman','FontSize',12)
+set(gca,'fontsize',12,'FontName','Times New Roman');
+%  axis([fi ff 0 2])
+
+figure()
+plot(f,phase(reshape(TBTCA(1,1,:),[1 length(f)]))*180/pi,'b:')
+
+%  plot(f,abs(R_WFE3(3,:)),'m-.','LineWidth',3)
+%  legend('Analytical Bending','WFE Bending', 'Analytical Longitudinal', 'WFE Longitudinal')
+ set(get(gca,'XLabel'),'String','Frequency [Hz]','FontName','Times New Roman','FontSize',12)
+ set(get(gca,'YLabel'),'String','\Phi_T','FontName','Times New Roman','FontSize',12)
+set(gca,'fontsize',12,'FontName','Times New Roman');
+%  axis([fi ff 0 2])
 
 %% Power Plots
  figure()
