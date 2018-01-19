@@ -13,7 +13,7 @@ clc
 %% Load Eig Solution
 
 % load Data/eigSolution_a52b20c52fi100df100ff130000
-load Data/eigSolution_a124b44c124fi100df1000ff250000
+% load Data/eigSolution_a124b44c124fi100df1000ff250000
 % load Data/eigSolution_a16b8c16fi100df100ff130000
 % load Data/eigSolution_a16b8c16fi100df1000ff135000
 % load Data/eigSolution_a16b8c16fi100df1000ff100000
