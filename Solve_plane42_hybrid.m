@@ -16,10 +16,10 @@ clc
 % load Data/eigSolution_a124b44c124fi100df1000ff250000
 % load Data/eigSolution_a16b8c16fi100df100ff130000
 % load Data/eigSolution_a16b8c16fi100df1000ff135000
-% load Data/eigSolution_a16b8c16fi100df1000ff100000
+load Data/eigSolution_a16b8c16fi100df1000ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff100000
 % load Data/eigSolution_a16b8c16fi100df100ff1000
-load Data/eigSolution_a16b8c16fi100df1ff1000
+% load Data/eigSolution_a16b8c16fi100df1ff1000
 
 %% Geometric constants
 

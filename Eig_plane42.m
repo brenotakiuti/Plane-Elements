@@ -9,12 +9,12 @@ clc
 
 %% Geometric constants
 
-La = 6e-4;
-Lb = 6e-4;               % length of the element (x direction) (m) (3 elem)
-Lc = La;
-% La = 5e-3;
-% Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
+% La = 6e-4;
+% Lb = 6e-4;               % length of the element (x direction) (m) (3 elem)
 % Lc = La;
+La = 5e-3;
+Lb = 5e-3;               % length of the element (x direction) (m) (3 elem)
+Lc = La;
 % La = 1e-3;
 % Lb = 1e-3;               % length of the element (x direction) (m) (3 elem)
 % Lc = La;
@@ -50,8 +50,8 @@ Mb=full(M);
 
 %% Frequencies
 fi = 100;
-ff = 100000;
-df = 1e3;
+ff = 1000;
+df = 1e0;
 f = fi:df:ff;
 w = 2*pi*f;
 
@@ -139,8 +139,8 @@ nmodes_a = length(a.kp(:,1));
 nmodes_b = length(b.kp(:,1));
 nmodes_c = length(c.kp(:,1));
 
-    mode_limita = 5;
-%     mode_limita = nmodes_a;
+%     mode_limita = 5;
+    mode_limita = nmodes_a;
     a.PhiQp = a.PhiQp(:,1:mode_limita,:);
     a.PhiQn = a.PhiQn(:,1:mode_limita,:);
     a.PsiQp = a.PsiQp(1:mode_limita,:,:);
@@ -151,17 +151,17 @@ nmodes_c = length(c.kp(:,1));
     a.PsiFp = a.PsiFp(1:mode_limita,:,:);
     a.PsiFn = a.PsiFn(1:mode_limita,:,:);
     
-    mode_limitb = 3;
+%     mode_limitb = 3;
 %     mode_limitb = length(knbi);
-%     mode_limitb = nmodes_b;
+    mode_limitb = nmodes_b;
     b.PhiQp = b.PhiQp(:,1:mode_limitb,:);
     b.PhiQn = b.PhiQn(:,1:mode_limitb,:);
     
     b.PhiFp = b.PhiFp(:,1:mode_limitb,:);
     b.PhiFn = b.PhiFn(:,1:mode_limitb,:);
     
-    mode_limitc = 5;
-%      mode_limita = nmodes_a;
+%     mode_limitc = 5;
+     mode_limitc = nmodes_c;
     c.PhiQp = c.PhiQp(:,1:mode_limitc,:);
     c.PhiQn = c.PhiQn(:,1:mode_limitc,:);
     
@@ -170,6 +170,6 @@ nmodes_c = length(c.kp(:,1));
 
 %%
 
-% filename = ['Data/eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
-%     'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)]
-% save(filename,'a', 'b', 'c','Ka','Kb','Kc','Ma','Mb','Mc','f');
+filename = ['Data/eigSolution_a' num2str(ndofa) 'b' num2str(ndofb) 'c' num2str(ndofc) ...
+    'fi' num2str(fi) 'df' num2str(df) 'ff' num2str(ff)]
+save(filename,'a', 'b', 'c','Ka','Kb','Kc','Ma','Mb','Mc','f');
